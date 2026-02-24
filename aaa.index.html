@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NFT Market Research · Algo Capital</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0a; --surface:#111111; --card:#181818;
+    --border:#2a2a2a; --accent:#ff6b00; --accent2:#ff8c00;
+    --accent3:#ffaa33; --text:#f0f0f0; --muted:#888888; --dune:#ff6b00;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+
+  /* NAVBAR */
+  .navbar{position:sticky;top:0;z-index:100;background:rgba(10,10,10,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  .navbar-inner{max-width:1100px;margin:0 auto;padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between}
+  .nav-brand{display:flex;align-items:center;gap:10px}
+  .nav-name{font-family:'Space Mono',monospace;font-size:13px;font-weight:700;letter-spacing:2.5px;color:#ffffff;text-transform:uppercase}
+  .nav-tag{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);border:1px solid var(--border);padding:5px 12px;border-radius:4px;text-transform:uppercase}
+
+  /* HERO */
+  .hero{padding:80px 40px 60px;max-width:1100px;margin:0 auto;position:relative}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(255,140,0,.12);border:1px solid rgba(255,140,0,.3);color:var(--dune);padding:6px 14px;border-radius:4px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:32px;animation:fadeUp .6s ease both}
+  .dune-dot{width:8px;height:8px;background:var(--dune);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+  .hero h1{font-size:clamp(42px,7vw,86px);font-weight:800;line-height:.92;letter-spacing:-3px;margin-bottom:28px;animation:fadeUp .7s .1s ease both}
+  .hero h1 em{font-style:normal;-webkit-text-stroke:1.5px var(--accent);color:transparent}
+  .hero-sub{font-size:16px;color:var(--muted);max-width:520px;line-height:1.7;animation:fadeUp .7s .2s ease both}
+  .hero-sub a{color:var(--dune);text-decoration:none;border-bottom:1px dotted var(--dune)}
+  .hero-sub strong{color:#fff}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .grid-line{position:absolute;right:0;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--border),transparent)}
+
+  /* STAT BAR */
+  .stat-bar{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:0 40px}
+  .stat-bar-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+  .stat-item{padding:28px 40px;border-right:1px solid var(--border)}
+  .stat-item:first-child{padding-left:0}
+  .stat-item:last-child{border-right:none}
+  .stat-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .stat-value{font-size:32px;font-weight:800;letter-spacing:-1px}
+  .stat-value .unit{font-size:14px;font-weight:400;color:var(--muted);margin-left:4px}
+  .stat-change{font-family:'Space Mono',monospace;font-size:11px;margin-top:4px}
+  .stat-change.up{color:var(--accent3)}.stat-change.down{color:#ff4444}
+
+  /* CONTENT */
+  .content{max-width:1100px;margin:0 auto;padding:60px 40px}
+  .section-header{display:flex;align-items:baseline;gap:16px;margin-bottom:32px}
+  .section-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--accent);letter-spacing:2px}
+  .section-title{font-size:22px;font-weight:700;letter-spacing:-.5px}
+
+  /* PHASES */
+  .phases{display:flex;margin-bottom:24px}
+  .phase{flex:1;padding:24px;border-left:1px solid var(--border)}
+  .phase:last-child{border-right:1px solid var(--border)}
+  .phase-bar{height:4px;border-radius:2px;margin-bottom:16px}
+  .phase-year{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:6px}
+  .phase-name{font-weight:700;font-size:15px;margin-bottom:8px}
+  .phase-desc{font-size:12px;color:var(--muted);line-height:1.6}
+  .phase-vol{margin-top:12px;font-family:'Space Mono',monospace;font-size:12px}
+
+  /* BAR CHART */
+  .timeline-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:32px;margin-bottom:24px}
+  .chart-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px}
+  .bar-chart{display:flex;align-items:flex-end;gap:12px;height:200px;padding-bottom:36px;position:relative}
+  .bar-chart::after{content:'';position:absolute;bottom:36px;left:0;right:0;height:1px;background:var(--border)}
+  .bar-group{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;justify-content:flex-end}
+  .bar{width:100%;border-radius:4px 4px 0 0;transition:opacity .2s;cursor:pointer;position:relative}
+  .bar:hover{opacity:.8}
+  .bar-tooltip{position:absolute;top:-32px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:10px;padding:4px 8px;border-radius:4px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+  .bar:hover .bar-tooltip{opacity:1}
+  .bar-label{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);position:absolute;bottom:-24px}
+
+  /* GRID 2 */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px}
+
+  /* DONUT */
+  .donut-wrap{display:flex;gap:32px;align-items:center}
+  .donut-legend{display:flex;flex-direction:column;gap:10px}
+  .legend-item{display:flex;align-items:center;gap:10px;font-size:13px}
+  .legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+  .legend-pct{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-left:auto;padding-left:16px}
+
+  /* HBARS */
+  .hbar-chart{display:flex;flex-direction:column;gap:14px}
+  .hbar-row{display:flex;align-items:center;gap:12px}
+  .hbar-label{font-size:12px;color:var(--muted);width:80px;flex-shrink:0;text-align:right}
+  .hbar-track{flex:1;height:28px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden}
+  .hbar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:12px;font-family:'Space Mono',monospace;font-size:11px;color:#000;font-weight:700;width:0;transition:width 1.5s cubic-bezier(.16,1,.3,1)}
+
+  /* DUNE */
+  .dune-section{background:linear-gradient(135deg,rgba(255,140,0,.06),rgba(123,94,167,.06));border:1px solid rgba(255,140,0,.2);border-radius:12px;padding:40px;margin-bottom:24px;position:relative;overflow:hidden}
+  .dune-section::before{content:'DUNE';position:absolute;right:-20px;top:50%;transform:translateY(-50%) rotate(90deg);font-size:100px;font-weight:800;color:rgba(255,140,0,.04);pointer-events:none;letter-spacing:-4px}
+  .dune-header{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+  .dune-icon{width:36px;height:36px;background:var(--dune);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;color:#000;font-family:'Space Mono',monospace}
+  .dune-name{font-weight:700;font-size:18px;color:var(--dune)}
+  .dune-links{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+  .dune-link{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;text-decoration:none;color:var(--text);transition:border-color .2s,transform .2s;display:block}
+  .dune-link:hover{border-color:var(--dune);transform:translateY(-2px)}
+  .dune-link-title{font-weight:700;font-size:13px;margin-bottom:6px;color:var(--dune)}
+  .dune-link-desc{font-size:12px;color:var(--muted);line-height:1.5}
+  .dune-link-url{font-family:'Space Mono',monospace;font-size:9px;color:var(--muted);margin-top:10px;display:block;opacity:.6}
+
+  /* INSIGHTS */
+  .insights{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px}
+  .insight-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px}
+  .insight-icon{font-size:28px;margin-bottom:12px}
+  .insight-title{font-weight:700;font-size:14px;margin-bottom:8px}
+  .insight-text{font-size:12px;color:var(--muted);line-height:1.7}
+
+  /* CTA */
+  .cta-section{background:linear-gradient(135deg,rgba(255,107,53,.1),rgba(0,212,170,.06));border:1px solid rgba(255,107,53,.3);border-radius:16px;padding:64px 48px;text-align:center;margin:40px 0;position:relative;overflow:hidden}
+  .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(255,107,53,.12),transparent 65%);pointer-events:none}
+  .cta-eyebrow{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:20px}
+  .cta-title{font-size:clamp(26px,4vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:16px}
+  .cta-title span{-webkit-text-stroke:1.5px var(--accent);color:transparent}
+  .cta-desc{font-size:15px;color:var(--muted);max-width:520px;margin:0 auto 40px;line-height:1.7}
+  .cta-buttons{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .btn-primary{display:inline-flex;align-items:center;gap:10px;background:var(--accent);color:#fff;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:16px 32px;border-radius:6px;text-decoration:none;border:none;cursor:pointer;transition:background .2s,transform .15s,box-shadow .2s;box-shadow:0 4px 24px rgba(255,107,53,.3)}
+  .btn-primary:hover{background:#ff5520;transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,107,53,.45)}
+  .btn-secondary{display:inline-flex;align-items:center;gap:10px;background:transparent;color:var(--text);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:16px 32px;border-radius:6px;text-decoration:none;border:1px solid var(--border);cursor:pointer;transition:border-color .2s,transform .15s,color .2s}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+  .cta-trust{margin-top:32px;display:flex;gap:32px;justify-content:center;flex-wrap:wrap}
+  .trust-item{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;display:flex;align-items:center;gap:6px}
+  .trust-dot{color:var(--accent)}
+
+  /* FOOTER */
+  footer{border-top:1px solid var(--border);padding:32px 40px;max-width:1100px;margin:0 auto}
+  .footer-inner{display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .footer-text{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px}
+  .footer-sources{font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);text-align:right;line-height:1.8}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .stat-bar-inner{grid-template-columns:repeat(2,1fr)}
+    .grid-2{grid-template-columns:1fr}
+    .dune-links{grid-template-columns:1fr}
+    .insights{grid-template-columns:1fr}
+    .phases{flex-direction:column}
+    .phase{border-left:none;border-top:1px solid var(--border)}
+    .phase:last-child{border-right:none;border-bottom:1px solid var(--border)}
+    .cta-buttons{flex-direction:column;align-items:center}
+    .cta-section{padding:40px 24px}
+    .stat-item{padding:20px}
+    .navbar-inner{padding:0 20px}
+    .hero{padding:40px 20px}
+    .content{padding:40px 20px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="nav-brand">
+      <div class="nav-name">Algo Capital</div>
+    </div>
+    <div class="nav-tag">NFT Research · Feb 2026</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">
+    <div class="dune-dot"></div>
+    RESEARCH · NFT MARKET · FEB 2026
+  </div>
+  <h1>The NFT<br><em>Market</em><br>Over Time</h1>
+  <p class="hero-sub">
+    A data-driven analysis of the NFT market: from the 2021 boom to the maturation of 2025, with on-chain data from <a href="https://dune.com" target="_blank">Dune Analytics</a>. Powered by <strong>Algo Capital</strong>.
+  </p>
+  <div class="grid-line"></div>
+</div>
+
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat-bar-inner">
+    <div class="stat-item">
+      <div class="stat-label">Market Size 2025</div>
+      <div class="stat-value">$61<span class="unit">B</span></div>
+      <div class="stat-change up">↑ +69% vs 2024</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Active Users</div>
+      <div class="stat-value">11.6<span class="unit">M</span></div>
+      <div class="stat-change up">↑ 410k wallet/day</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">All-Time Peak</div>
+      <div class="stat-value">$342<span class="unit">B</span></div>
+      <div class="stat-change down">↓ 2022 cap, then crash</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">Revenue 2025</div>
+      <div class="stat-value">$608<span class="unit">M</span></div>
+      <div class="stat-change down">↓ −11% vs 2024</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- 01 FASI -->
+  <div class="section-header">
+    <span class="section-num">01</span>
+    <span class="section-title">NFT Market Phases</span>
+  </div>
+  <div class="phases">
+    <div class="phase">
+      <div class="phase-bar" style="background:#555;width:20%"></div>
+      <div class="phase-year">2017–2020</div>
+      <div class="phase-name">Genesis</div>
+      <div class="phase-desc">CryptoPunks, CryptoKitties. The concept is born on Ethereum. Market nearly non-existent.</div>
+      <div class="phase-vol" style="color:#888">~$95M vol.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-bar" style="background:var(--accent);width:100%"></div>
+      <div class="phase-year">2021</div>
+      <div class="phase-name">🔥 Boom</div>
+      <div class="phase-desc">Bored Apes, Axie, NBA Top Shot. Volume explodes. Global hype, 28.6M active wallets.</div>
+      <div class="phase-vol" style="color:var(--accent)">$24.9B vol.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-bar" style="background:var(--accent2);width:80%"></div>
+      <div class="phase-year">2022</div>
+      <div class="phase-name">Peak & Crash</div>
+      <div class="phase-desc">Market cap $342B, then crypto crash. NFTs collapse. OpenSea begins layoffs.</div>
+      <div class="phase-vol" style="color:var(--accent2)">Peak $342B cap</div>
+    </div>
+    <div class="phase">
+      <div class="phase-bar" style="background:var(--muted);width:30%"></div>
+      <div class="phase-year">2023–2024</div>
+      <div class="phase-name">❄️ Crypto Winter</div>
+      <div class="phase-desc">Revenue drops to $684M. Solana overtakes Ethereum in monthly volume. Market consolidates.</div>
+      <div class="phase-vol" style="color:var(--muted)">$684M revenue</div>
+    </div>
+    <div class="phase">
+      <div class="phase-bar" style="background:var(--accent3);width:55%"></div>
+      <div class="phase-year">2025</div>
+      <div class="phase-name">🌱 Maturity</div>
+      <div class="phase-desc">Phygital, gaming, ticketing, RWA. Real utility replaces pure speculation.</div>
+      <div class="phase-vol" style="color:var(--accent3)">$2.82B H1</div>
+    </div>
+  </div>
+
+  <!-- BAR CHART -->
+  <div class="timeline-card">
+    <div class="chart-label">NFT sales volume by year (USD billions) — CryptoSlam / DappRadar</div>
+    <div class="bar-chart" id="volumeChart"></div>
+  </div>
+
+  <!-- GRID 2 -->
+  <div class="grid-2">
+    <div class="timeline-card" style="margin-bottom:0">
+      <div class="chart-label">Volume by category (2025)</div>
+      <div class="donut-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0;filter:drop-shadow(0 0 20px rgba(255,107,0,.25))">
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#222" stroke-width="24"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#ff6b00" stroke-width="24" stroke-dasharray="120.7 207.3" stroke-dashoffset="0" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#ff9233" stroke-width="24" stroke-dasharray="81.7 246.3" stroke-dashoffset="-120.7" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#ffb566" stroke-width="24" stroke-dasharray="49 279" stroke-dashoffset="-202.4" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#ffd700" stroke-width="24" stroke-dasharray="35.9 292.1" stroke-dashoffset="-251.4" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="52" fill="none" stroke="#444" stroke-width="24" stroke-dasharray="39.2 288.8" stroke-dashoffset="-287.3" transform="rotate(-90 70 70)"/>
+          <text x="70" y="66" text-anchor="middle" fill="#f0f0f0" font-family="sans-serif" font-size="20" font-weight="800">100%</text>
+          <text x="70" y="82" text-anchor="middle" fill="#888" font-family="monospace" font-size="8">trading vol.</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:#ff6b00"></div>PFP / Collectibles<span class="legend-pct">37%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ff9233"></div>Gaming<span class="legend-pct">25%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffb566"></div>Music / Media<span class="legend-pct">15%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#444"></div>Other<span class="legend-pct">12%</span></div>
+          <div class="legend-item"><div class="legend-dot" style="background:#ffd700"></div>RWA<span class="legend-pct">11%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="timeline-card" style="margin-bottom:0">
+      <div class="chart-label">Marketplace share — Dune Analytics 2024</div>
+      <div class="hbar-chart">
+        <div class="hbar-row"><div class="hbar-label">OpenSea</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#ff6b00,#ff8c33)" data-target="90%">90%</div></div></div>
+        <div class="hbar-row"><div class="hbar-label">Blur</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#cc5500,#e06600)" data-target="6%">6%</div></div></div>
+        <div class="hbar-row"><div class="hbar-label">Magic Eden</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#ff9233,#ffaa55)" data-target="2%">2%</div></div></div>
+        <div class="hbar-row"><div class="hbar-label">Others</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#444,#555)" data-target="2%">2%</div></div></div>
+      </div>
+      <div style="margin-top:28px">
+        <div class="chart-label">Blockchain by NFT volume (2025)</div>
+        <div class="hbar-chart">
+          <div class="hbar-row"><div class="hbar-label">Ethereum</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#ff6b00,#ff8c33)" data-target="62%">62%</div></div></div>
+          <div class="hbar-row"><div class="hbar-label">Solana</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#cc5500,#e06600)" data-target="25%">25%</div></div></div>
+          <div class="hbar-row"><div class="hbar-label">Polygon</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#ff9233,#ffaa55)" data-target="8%">8%</div></div></div>
+          <div class="hbar-row"><div class="hbar-label">Others</div><div class="hbar-track"><div class="hbar-fill" style="background:linear-gradient(90deg,#444,#555)" data-target="5%">5%</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 DUNE -->
+  <div style="height:40px"></div>
+  <div class="section-header">
+    <span class="section-num">02</span>
+    <span class="section-title">Dune Analytics — NFT Dashboards</span>
+  </div>
+  <div class="dune-section">
+    <div class="dune-header">
+      <div class="dune-icon">D</div>
+      <div>
+        <div class="dune-name">Dune Analytics</div>
+        <div style="font-size:12px;color:var(--muted)">Open-source platform for on-chain analytics. SQL across 100+ blockchains.</div>
+      </div>
+    </div>
+    <p style="font-size:14px;color:var(--muted);line-height:1.8;max-width:680px">Dune lets anyone query on-chain data directly with SQL and publish public dashboards. For NFTs, dozens of community-curated dashboards track volume, active wallets, fees, marketplace share and top collections in real time.</p>
+    <div class="dune-links">
+      <a href="https://dune.com/hildobby/nfts" target="_blank" class="dune-link">
+        <div class="dune-link-title">🌐 Crosschain NFT Market</div>
+        <div class="dune-link-desc">Full overview across Blur, OpenSea, Magic Eden, Element on all major blockchains.</div>
+        <span class="dune-link-url">dune.com/hildobby/nfts</span>
+      </a>
+      <a href="https://dune.com/abhi_0x/nft-dashboard" target="_blank" class="dune-link">
+        <div class="dune-link-title">📊 NFT Volume Dashboard</div>
+        <div class="dune-link-desc">Daily volume, unique users and monthly trends updated on-chain in real time.</div>
+        <span class="dune-link-url">dune.com/abhi_0x/nft-dashboard</span>
+      </a>
+      <a href="https://dune.com/sealaunch/NFT" target="_blank" class="dune-link">
+        <div class="dune-link-title">🌊 Marketplaces Overview</div>
+        <div class="dune-link-desc">Historical comparison of OpenSea, LooksRare, Blur, X2Y2 and other marketplaces.</div>
+        <span class="dune-link-url">dune.com/sealaunch/NFT</span>
+      </a>
+      <a href="https://dune.com/PierreYves_Gendron/opensea---metrics" target="_blank" class="dune-link">
+        <div class="dune-link-title">📈 OpenSea Metrics</div>
+        <div class="dune-link-desc">Fees, volume, active wallets and top traded collections on OpenSea over time.</div>
+        <span class="dune-link-url">dune.com/PierreYves_Gendron</span>
+      </a>
+      <a href="https://dune.com/thomas_m/NFT-stats" target="_blank" class="dune-link">
+        <div class="dune-link-title">🗓️ NFT Market History</div>
+        <div class="dune-link-desc">Long-term historical overview to analyse NFT market cycles since 2017.</div>
+        <span class="dune-link-url">dune.com/thomas_m/NFT-stats</span>
+      </a>
+      <a href="https://dune.com" target="_blank" class="dune-link">
+        <div class="dune-link-title">🔍 Explore Dune</div>
+        <div class="dune-link-desc">Build custom SQL queries or fork existing dashboards. Free for basic use.</div>
+        <span class="dune-link-url">dune.com → Explore → "NFT"</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- 03 INSIGHTS -->
+  <div class="section-header">
+    <span class="section-num">03</span>
+    <span class="section-title">Key Insights</span>
+  </div>
+  <div class="insights">
+    <div class="insight-card">
+      <div class="insight-icon">🎮</div>
+      <div class="insight-title">Gaming is the future</div>
+      <div class="insight-text">NFT gaming generates $12.9B in 2025. Play-to-earn and metaverse sustain engagement even as speculation fades.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🌏</div>
+      <div class="insight-title">Asia leads</div>
+      <div class="insight-text">South Korea, Japan and China account for 40% of global volume. Asia-Pacific will post the highest CAGR by 2027.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🏷️</div>
+      <div class="insight-title">Lower prices = healthier market</div>
+      <div class="insight-text">In Q2 2025 sales count rose 78% despite lower volumes: the market is democratising. Average price below $200 per NFT.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🏛️</div>
+      <div class="insight-title">Institutions are in</div>
+      <div class="insight-text">Institutional investors cover 15% of the market. Luxury brands and venues use NFTs for phygital (+60%) and ticketing (5.3%).</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">⚡</div>
+      <div class="insight-title">Solana rises</div>
+      <div class="insight-text">Solana overtook Ethereum in monthly NFT volume in 2024. Near-zero fees and speed make it the emerging NFT chain.</div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">♻️</div>
+      <div class="insight-title">RWA & Green NFTs</div>
+      <div class="insight-text">NFTs for real-world assets (carbon credits, real estate) reached $300M. The true frontier of mainstream adoption beyond speculation.</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <div class="cta-eyebrow">· Algo Capital · Digital Asset Research ·</div>
+    <div class="cta-title">Want to refine your<br><span>NFT strategy</span>?</div>
+    <p class="cta-desc">Algo Capital provides tailored analysis on DeFi, NFTs and emerging digital assets, with access to top crypto funds and proprietary hybrid research.</p>
+    <div class="cta-buttons">
+      <a href="https://calendly.com/a-migliaccio/call" target="_blank" class="btn-primary">→ Contact Algo Capital</a>
+      <a href="https://dune.com/hildobby/nfts" target="_blank" class="btn-secondary">↗ Explore data on Dune</a>
+    </div>
+    <div class="cta-trust">
+      <div class="trust-item"><span class="trust-dot">●</span> Verified on-chain research</div>
+      <div class="trust-item"><span class="trust-dot">●</span> Data updated Feb 2026</div>
+      <div class="trust-item"><span class="trust-dot">●</span> Hybrid fund + research approach</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <span class="footer-text" style="color:#fff;font-weight:700">ALGO CAPITAL</span>
+      </div>
+      <div class="footer-text">NFT Market Research · February 2026</div>
+    </div>
+    <div class="footer-sources">
+      Sources: CryptoSlam, DappRadar, Statista, CoinLedger, algo-capital.com<br>
+      On-chain: dune.com/hildobby/nfts · dune.com/sealaunch/NFT
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Bar chart
+  const data=[
+    {y:'2018',v:.01,c:'#444'},{y:'2019',v:.02,c:'#444'},{y:'2020',v:.095,c:'#555'},
+    {y:'2021',v:24.9,c:'#ff6b00'},{y:'2022',v:11.2,c:'#cc5500'},
+    {y:'2023',v:4.1,c:'#ff9233'},{y:'2024',v:5.9,c:'#ffaa55'},
+    {y:'2025*',v:5.6,c:'#ffd700'}
+  ];
+  const mx=Math.max(...data.map(d=>d.v));
+  const ch=document.getElementById('volumeChart');
+  data.forEach((d,i)=>{
+    const h=Math.max((d.v/mx)*144,2);
+    const g=document.createElement('div');
+    g.className='bar-group';
+    g.innerHTML=`<div class="bar" style="height:0px;background:${d.c};border:1px solid rgba(255,255,255,.08);transition:height .8s cubic-bezier(.16,1,.3,1) ${i*.07}s" data-h="${h}"><div class="bar-tooltip">$${d.v}B</div><div class="bar-label">${d.y}</div></div>`;
+    ch.appendChild(g);
+  });
+  setTimeout(()=>document.querySelectorAll('.bar').forEach(b=>b.style.height=b.dataset.h+'px'),350);
+
+  // HBars
+  setTimeout(()=>document.querySelectorAll('.hbar-fill').forEach(f=>f.style.width=f.dataset.target),550);
+
+  // Scroll reveal
+  const obs=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.style.opacity='1';x.target.style.transform='translateY(0)'}}),{threshold:.1});
+  document.querySelectorAll('.insight-card,.phase,.dune-link').forEach(el=>{
+    el.style.cssText+='opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease';
+    obs.observe(el);
+  });
+</script>
+</body>
+</html>
